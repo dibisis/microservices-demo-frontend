@@ -18,7 +18,7 @@ import (
 	"context"
 	"time"
 
-	pb "github.com/dibisis/microservices-demo-frontend/src/frondend/genproto"
+	pb "github.com/dibisis/microservices-demo-frontend/src/frontend/genproto"
 
 	"github.com/pkg/errors"
 )

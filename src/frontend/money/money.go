@@ -17,7 +17,7 @@ package money
 import (
 	"errors"
 
-	pb "github.com/dibisis/microservices-demo-frontend/src/frondend/genproto"
+	pb "github.com/dibisis/microservices-demo-frontend/src/frontend/genproto"
 )
 
 const (

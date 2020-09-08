@@ -29,8 +29,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	pb "github.com/dibisis/microservices-demo-frontend/src/frondend/genproto"
-	"github.com/dibisis/microservices-demo-frontend/src/frondend/money"
+	pb "github.com/dibisis/microservices-demo-frontend/src/frontend/genproto"
+	"github.com/dibisis/microservices-demo-frontend/src/frontend/money"
 )
 
 type platformDetails struct {
