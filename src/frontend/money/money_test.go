@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	pb "github.com/dibisis/microservices-demo-frontend/src/genproto"
+	pb "github.com/dibisis/microservices-demo-frontend/src/frondend/genproto"
 )
 
 func mmc(u int64, n int32, c string) pb.Money { return pb.Money{Units: u, Nanos: n, CurrencyCode: c} }

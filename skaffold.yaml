@@ -21,7 +21,7 @@ build:
   # here:
   # https://skaffold.dev/docs/concepts/#image-repository-handling
   - image: frontend
-    context: src
+    context: src/frontend
   tagPolicy:
     gitCommit: {}
 deploy:
