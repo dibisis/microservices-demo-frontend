@@ -22,7 +22,9 @@ jobs:
             docker push $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:${CIRCLE_SHA1:0:7}
   deploy-application:
     version: 2.1
-    executor: aws-eks/python3
+#    executor: aws-eks/python3
+    docker:
+      - image: circleci/buildpack-deps:stretch
     parameters:
       cluster-name:
         description: |
