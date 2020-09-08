@@ -56,6 +56,7 @@ jobs:
                sed "s|DOCKER_IMAGE_NAME|<< parameters.docker-image-name >>|\
                 g;s|BUILD_DATE_VALUE|$BUILD_DATE|g;s|VERSION_INFO_VALUE|\
                 << parameters.version-info >>|g" > kubernetes-manifests/frontend.yaml
+            cat kubernetes-manifests/frontend.yaml
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: msa-demo
           install-kubectl: true
