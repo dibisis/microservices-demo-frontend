@@ -8,5 +8,6 @@ workflows:
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
 #          remote-docker-dlc: true
 #          not allow free-plan
+          path: src/frontend
           tag: << pipeline.git.revision >>
           use-remote-docker: true
