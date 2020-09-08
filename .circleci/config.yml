@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 orbs:
   aws-eks: circleci/aws-eks@0.2.3
@@ -21,10 +21,10 @@ jobs:
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             docker push $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:${CIRCLE_SHA1:0:7}
   deploy-application:
-    version: 2.1
-#    executor: aws-eks/python3
-    docker:
-      - image: circleci/buildpack-deps:stretch
+#    version: 2.1
+    executor: aws-eks/python3
+#    docker:
+#      - image: circleci/buildpack-deps:stretch
     parameters:
       cluster-name:
         description: |
@@ -65,14 +65,12 @@ workflows:
           filters:
             branches:
               only: master
-  deployment:
-    jobs:
       - deploy-application:
           context:
             - awsauthdibisis
-#          cluster-name: msa-demo
+          cluster-name: msa-demo
 #          - aws-region: ap-northeast-2
-#          docker-image-name: "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
-#          version-info: "${CIRCLE_SHA1}"
-#          requires:
-#            - build-master
+          docker-image-name: "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+          version-info: "${CIRCLE_SHA1}"
+          requires:
+            - build-and-push
