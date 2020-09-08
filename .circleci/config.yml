@@ -1,13 +1,21 @@
-orbs:
-  docker: circleci/docker@1.4.0
-version: 2.1
-workflows:
-  build-and-publish-docker-image:
+version: 2
     jobs:
-      - docker/publish:
-          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-#          remote-docker-dlc: true
-#          not allow free-plan
-          path: src/frontend
-          tag: << pipeline.git.revision >>
-          use-remote-docker: true
+      build:
+        environment:
+          IMAGE_NAME: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+        docker:
+          - image: circleci/buildpack-deps:stretch
+        steps:
+          - checkout
+          - setup_remote_docker
+          - run:
+              name: Build Docker image
+              command: docker build -t $IMAGE_NAME:latest .
+    workflows:
+      version: 2
+      build-master:
+        jobs:
+          - build:
+              filters:
+                branches:
+                  only: master
