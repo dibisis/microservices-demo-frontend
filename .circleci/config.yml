@@ -6,6 +6,7 @@ workflows:
     jobs:
       - docker/publish:
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-          remote-docker-dlc: true
+#          remote-docker-dlc: true
+#          not allow free-plan
           tag: << pipeline.git.revision >>
           use-remote-docker: true
