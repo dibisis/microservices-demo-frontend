@@ -21,10 +21,10 @@ jobs:
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             docker push $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:${CIRCLE_SHA1:0:7}
   deploy-application:
-#    version: 2.1
+    #    version: 2.1
     executor: aws-eks/python3
-#    docker:
-#      - image: circleci/buildpack-deps:stretch
+    #    docker:
+    #      - image: circleci/buildpack-deps:stretch
     parameters:
       cluster-name:
         description: |
@@ -45,13 +45,23 @@ jobs:
         default: ""
     steps:
       - checkout
+      - run:
+          name: Create deployment manifest
+          command: |
+            # Replace the placeholders in the manifest with the intended values.
+            # This is to avoid hardcoding the image name in the manifest, to make this
+            # demo project more portable.
+            BUILD_DATE=$(date '+%Y%m%d%H%M%S')
+            cat kubernetes-manifests/frontend.yaml.template |\
+               sed "s|DOCKER_IMAGE_NAME|<< parameters.docker-image-name >>|\
+                g;s|BUILD_DATE_VALUE|$BUILD_DATE|g;s|VERSION_INFO_VALUE|\
+                << parameters.version-info >>|g" > kubernetes-manifests/frontend.yaml
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: msa-demo
           install-kubectl: true
           aws-region: ap-northeast-2
-
       - kubernetes/create-or-update-resource:
-          resource-file-path: "kubernetes-manifests/frontend.yaml"
+          resource-file-path: "kubernetes-manifests/frontend.yaml.template"
           get-rollout-status: true
           resource-name: "deployment/frontend"
           show-kubectl-command: true
@@ -69,7 +79,7 @@ workflows:
           context:
             - awsauthdibisis
           cluster-name: msa-demo
-#          - aws-region: ap-northeast-2
+          #          - aws-region: ap-northeast-2
           docker-image-name: "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
           version-info: "${CIRCLE_SHA1}"
           requires:

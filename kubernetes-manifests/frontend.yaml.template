@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: frontend
+          image: DOCKER_IMAGE_NAME
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -67,6 +67,10 @@ spec:
             value: "adservice:9555"
           - name: ENV_PLATFORM
             value: "gcp"
+          - name: VERSION_INFO
+          value: "VERSION_INFO_VALUE"
+          - name: BUILD_DATE
+          value: "BUILD_DATE_VALUE"
           # - name: DISABLE_TRACING
           #   value: "1"
           # - name: DISABLE_PROFILER
