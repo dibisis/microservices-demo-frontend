@@ -41,15 +41,17 @@ jobs:
         type: string
         default: ""
     steps:
-      - checkout
+      #      - checkout
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
+          cluster-name: msa-demo
           install-kubectl: true
-          aws-region: << parameters.aws-region >>
+          aws-region: ap-northeast-2
+
       - kubernetes/create-or-update-resource:
           resource-file-path: "kubernetes-manifests/frontend.yaml"
           get-rollout-status: true
-          resource-name: deployment/demoapp
+          resource-name: "deployment/frontend"
+          show-kubectl-command: true
 workflows:
   version: 2
   build-master:
@@ -60,12 +62,14 @@ workflows:
           filters:
             branches:
               only: master
+  deployment:
+    jobs:
       - deploy-application:
           context:
             - awsauthdibisis
-          cluster-name: msa-demo
-          aws-region: ap-northeast-2
-          docker-image-name: "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
-          version-info: "${CIRCLE_SHA1}"
-          requires:
-            - build-and-push
+#          cluster-name: msa-demo
+#          - aws-region: ap-northeast-2
+#          docker-image-name: "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+#          version-info: "${CIRCLE_SHA1}"
+#          requires:
+#            - build-master
