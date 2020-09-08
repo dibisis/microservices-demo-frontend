@@ -1,8 +1,6 @@
 version: 2
 jobs:
   build-and-push:
-    environment:
-      IMAGE_NAME: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
     docker:
       - image: circleci/buildpack-deps:stretch
     steps:
@@ -22,6 +20,8 @@ workflows:
   build-master:
     jobs:
       - build-and-push:
+          context:
+            - dockerhub
           filters:
             branches:
               only: master
