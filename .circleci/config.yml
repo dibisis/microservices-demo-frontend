@@ -1,4 +1,9 @@
 version: 2
+
+orbs:
+  aws-eks: circleci/aws-eks@1.0.0
+  kubernetes: circleci/kubernetes@0.11.1
+
 jobs:
   build-and-push:
     docker:
@@ -15,6 +20,36 @@ jobs:
           command: |
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             docker push $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:${CIRCLE_SHA1:0:7}
+  deploy-application:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+      docker-image-name:
+        description: |
+          Name of the docker image to be deployed
+        type: string
+      version-info:
+        description: |
+          App version information
+        type: string
+      aws-region:
+        description: |
+          AWS region
+        type: string
+        default: ""
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+          aws-region: << parameters.aws-region >>
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "kubernetes-manifests/frontend.yaml"
+          get-rollout-status: true
+          resource-name: deployment/demoapp
 workflows:
   version: 2
   build-master:
@@ -25,3 +60,12 @@ workflows:
           filters:
             branches:
               only: master
+      - deploy-application:
+          context:
+            - awsauthdibisis
+          cluster-name: msa-demo
+          aws-region: ap-northeast-2
+          docker-image-name: "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+          version-info: "${CIRCLE_SHA1}"
+          requires:
+            - build-and-push
