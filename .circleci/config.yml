@@ -61,7 +61,7 @@ jobs:
           install-kubectl: true
           aws-region: ap-northeast-2
       - kubernetes/create-or-update-resource:
-          resource-file-path: "kubernetes-manifests/frontend.yaml.template"
+          resource-file-path: "kubernetes-manifests/frontend.yaml"
           get-rollout-status: true
           resource-name: "deployment/frontend"
           show-kubectl-command: true
