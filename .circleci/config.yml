@@ -80,7 +80,7 @@ workflows:
             - awsauthdibisis
           cluster-name: msa-demo
           #          - aws-region: ap-northeast-2
-          docker-image-name: "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+          docker-image-name: "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:${CIRCLE_SHA1:0:7}"
           version-info: "${CIRCLE_SHA1}"
           requires:
             - build-and-push
