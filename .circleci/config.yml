@@ -66,6 +66,45 @@ jobs:
           get-rollout-status: true
           resource-name: "deployment/frontend"
           show-kubectl-command: true
+  test-application:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+      aws-region:
+        description: |
+          AWS region
+        type: string
+        default: ""
+#      expected-version-info:
+#        description: |
+#          Expected app version (this is used for testing that the
+#          correct version has been deployed)
+#        type: string
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+          aws-region: << parameters.aws-region >>
+      - run:
+          name: Wait for service to be ready
+          command: |
+            kubectl get pods
+            kubectl get services
+            sleep 30
+            for attempt in {1..20}; do
+              EXTERNAL_IP=$(kubectl get service frontend-external | awk '{print $4}' | tail -n1)
+              echo "Checking external IP: ${EXTERNAL_IP}"
+              if [ -n "${EXTERNAL_IP}" ] && [ -z $(echo "${EXTERNAL_IP}" | grep "pending") ]; then
+                break
+              fi
+              echo "Waiting for external IP to be ready: ${EXTERNAL_IP}"
+              sleep 10
+            done
+            sleep 180
+            curl -s --retry 10 "http://$EXTERNAL_IP/_healthz"
 workflows:
   version: 2
   build-master:
@@ -80,8 +119,17 @@ workflows:
           context:
             - awsauthdibisis
           cluster-name: msa-demo
-          #          - aws-region: ap-northeast-2
+          aws-region: ap-northeast-2
           docker-image-name: "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:${CIRCLE_SHA1:0:7}"
-          version-info: "${CIRCLE_SHA1}"
+          version-info: "${CIRCLE_SHA1:0:7}"
           requires:
             - build-and-push
+      - test-application:
+          context:
+            - awsauthdibisis
+          name: test-application
+          cluster-name: msa-demo
+          aws-region: ap-northeast-2
+          expected-version-info: "${CIRCLE_SHA1:0:7}"
+          requires:
+            - deploy-application
