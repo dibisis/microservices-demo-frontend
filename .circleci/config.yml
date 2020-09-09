@@ -66,6 +66,7 @@ jobs:
           get-rollout-status: true
           resource-name: "deployment/frontend"
           show-kubectl-command: true
+
   test-application:
     executor: aws-eks/python3
     parameters:
@@ -93,7 +94,7 @@ jobs:
           command: |
             kubectl get pods
             kubectl get services
-            sleep 30
+            sleep 10
             for attempt in {1..20}; do
               EXTERNAL_IP=$(kubectl get service frontend-external | awk '{print $4}' | tail -n1)
               echo "Checking external IP: ${EXTERNAL_IP}"
@@ -103,8 +104,19 @@ jobs:
               echo "Waiting for external IP to be ready: ${EXTERNAL_IP}"
               sleep 10
             done
-            sleep 180
+            sleep 30
             curl -s --retry 10 "http://$EXTERNAL_IP/_healthz"
+      - run:
+          name: Bind CNAME TO AWS ELB
+          command: |
+            ELB_FQDN=$(kubectl get service frontend-external | awk '{print $4}' | tail -n1)
+            echo "Checking external IP: ${ELB_FQDN}"
+
+            curl -X PUT "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${DNS_RECORDID}" \
+                -H "X-Auth-Email: ${CLOUDFLARE_EMAIL}" \
+                -H "X-Auth-Key: ${CLOUDFLARE_API_KEY}" \
+                -H "Content-Type: application/json" \
+                --data '{"type":"CNAME","name":"<< parameters.cluster-name >>","content":"'${ELB_FQDN}'","ttl":1,"proxied":true}'
 workflows:
   version: 2
   build-master:
@@ -127,6 +139,7 @@ workflows:
       - test-application:
           context:
             - awsauthdibisis
+            - cloudflareapi
           name: test-application
           cluster-name: msa-demo
           aws-region: ap-northeast-2
