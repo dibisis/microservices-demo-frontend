@@ -130,6 +130,6 @@ workflows:
           name: test-application
           cluster-name: msa-demo
           aws-region: ap-northeast-2
-          expected-version-info: "${CIRCLE_SHA1:0:7}"
+#          expected-version-info: "${CIRCLE_SHA1:0:7}"
           requires:
             - deploy-application
